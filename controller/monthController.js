@@ -44,6 +44,14 @@ const updateCard = async function (req, res, next) {
     res.json(caculationById("updateCard", actioins, req.params.id));
 
 }
+const updateCardAll = async function (req, res, next) {
+    let result = await axios();
+    let actioins = result.actions;
+    // let count = caculation("updateCard", actioins);
+
+    res.json(caculation("updateCard", actioins));
+
+}
 const deleteCard = async function (req, res, next) {
     let result = await axios();
     let actioins = result.actions;
@@ -53,7 +61,7 @@ const deleteCard = async function (req, res, next) {
 }
 
 const date = async function (req, res, next) {
-    let actioin = "createCard";
+    let actioin = req.params.action;
     let result = await axios();
     let actioins = result.actions;
     let allDate = [];
@@ -113,7 +121,7 @@ function caculation(actioin, data) {
                 // console.log(month.format("YYYY-MM") + " " + count)
 
             } else {
-                key = month.format("YYYY-MM");
+                key = lastMonth.format("YYYY-MM");
                 // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
                 monthCount.push({ YYMM: key, count });
                 count = 1;
@@ -131,6 +139,7 @@ function caculation(actioin, data) {
 
 function caculationById(actioin, dataArr, id) {
     let monthCount = [];
+    let updateType = [];
     let count = 0;
     let month, lastMonth;
     let key;
@@ -142,36 +151,42 @@ function caculationById(actioin, dataArr, id) {
         }
 
         if (dataArr[i].data.card) {
-            if (dataArr[i].data.card.id == id){
+            if (dataArr[i].data.card.id == id) {
                 if (dataArr[i].type == actioin) {
                     if (month.isSame(lastMonth, "month")) {
                         count++;
+                        updateType.push({ type: dataArr[i].data.old });
                         // console.log(month.format("YYYY-MM") + " " + count)
+                        // console.log(dataArr[i].data.old)
 
                     } else {
-                        key = month.format("YYYY-MM");
+                        key = lastMonth.format("YYYY-MM");
                         // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
-                        monthCount.push({ YYMM: key, count });
+                        monthCount.push({ YYMM: key, count, old: updateType });
                         count = 1;
+                        updateType = [];
+                        updateType.push({ type: dataArr[i].data.old });
                         lastMonth = month;
                     }
                 }
+            }
+        }
+
+        if (i == dataArr.length - 1) {
+            key = lastMonth.format("YYYY-MM");
+            // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
+            monthCount.push({ YYMM: key, count, old: updateType });
+
         }
     }
-
-    if (i == dataArr.length - 1) {
-        key = lastMonth.format("YYYY-MM");
-        // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
-        monthCount.push({ YYMM: key, count });
-    }
-}
-return monthCount
+    return monthCount
 }
 
 module.exports = {
     createCard,
     updateCard,
     deleteCard,
+    updateCardAll,
     card,
     date
 }

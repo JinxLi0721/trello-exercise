@@ -30,40 +30,53 @@ const { type } = require("express/lib/response");
 
 const createCard = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.actions;
+    let actioins = result.data.actions;
+    if (req.query.start && req.query.end) {
+        let response = calculateBetweenTime("createCard", actioins, req.query.start, req.query.end);
 
-    res.json(caculation("createCard", actioins));
+        res.json({ statusCode: result.statusCode, data: response });
+    } else {
+        let response = calculation("createCard", actioins);
+
+        res.json({ statusCode: result.statusCode, data: response });
+    }
 
 }
 
 const updateCard = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.actions;
+    let actioins = result.data.actions;
     // let count = caculation("updateCard", actioins);
+    let response = calculationById("updateCard", actioins, req.params.id)
 
-    res.json(caculationById("updateCard", actioins, req.params.id));
+    res.json({ statusCode: result.statusCode, data: response });
 
 }
 const updateCardAll = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.actions;
-    // let count = caculation("updateCard", actioins);
+    let actioins = result.data.actions;
+    if (req.query.start && req.query.end) {
+        let response = calculateBetweenTime("updateCard", actioins, req.query.start, req.query.end);
 
-    res.json(caculation("updateCard", actioins));
+        res.json({ statusCode: result.statusCode, data: response });
+    } else {
+        let response = calculation("updateCard", actioins);
 
+        res.json({ statusCode: result.statusCode, data: response });
+    }
 }
 const deleteCard = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.actions;
-
-    res.json(caculation("deleteCard", actioins));
+    let actioins = result.data.actions;
+    let response = calculation("deleteCard", actioins);
+    res.json({ statusCode: result.statusCode, data: response });
 
 }
 
 const date = async function (req, res, next) {
     let actioin = req.params.action;
     let result = await axios();
-    let actioins = result.actions;
+    let actioins = result.data.actions;
     let allDate = [];
 
     for (var i = 0; i < actioins.length; i++) {
@@ -82,7 +95,7 @@ const card = async function (req, res, next) {
     console.log(re + " " + typeof (re))
 
     let result = await axios();
-    let actioins = result.actions;
+    let actioins = result.data.actions;
     let allData = [];
 
     for (var action of actioins) {
@@ -104,7 +117,7 @@ const card = async function (req, res, next) {
 
 }
 
-function caculation(actioin, data) {
+function calculation(actioin, data) {
     let monthCount = [];
     let count = 0;
     let month, lastMonth;
@@ -137,7 +150,7 @@ function caculation(actioin, data) {
     return monthCount
 }
 
-function caculationById(actioin, dataArr, id) {
+function calculationById(actioin, dataArr, id) {
     let monthCount = [];
     let updateType = [];
     let count = 0;
@@ -180,6 +193,48 @@ function caculationById(actioin, dataArr, id) {
         }
     }
     return monthCount
+}
+
+function calculateBetweenTime(actioin, data, start, end) {
+    let monthCountHaveCards = [];
+    let monthCount = [];
+    let startMon = moment(start);
+    let interval = moment(end).diff(moment(start), "month");
+
+    for (m = 0; m < interval + 1; m++) {
+        var key = startMon.format("YYYY-MM");
+        monthCountHaveCards.push({ YYMM: key, cards: [], count: 0 });
+        monthCount.push({ YYMM: key, count: 0 });
+        startMon = startMon.add(1, "M");
+    }
+
+    for (let card of data) {
+        if (moment(card.date).isBefore(moment(start), "month")) break;
+        // if (moment(card.date).isAfter(moment(end)), "month") {
+        //     console.log("conttinue")
+        //     continue;
+
+        // }
+        if (card.type == actioin) {
+            for (let rc of monthCountHaveCards) {
+                if (rc.YYMM == moment(card.date).format("YYYY-MM")) {
+                    rc.cards.push(card);
+                }
+            }
+
+        }
+
+    }
+    for (let rc of monthCountHaveCards) {
+        rc.count = rc.cards.length;
+    }
+    for (i = 0; i < monthCountHaveCards.length; i++) {
+        monthCountHaveCards[i].count = monthCountHaveCards[i].cards.length;
+        monthCount[i].count = monthCountHaveCards[i].count;
+    }
+
+    return monthCount;
+
 }
 
 module.exports = {

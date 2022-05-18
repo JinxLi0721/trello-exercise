@@ -27,13 +27,13 @@ const { type } = require("express/lib/response");
 
 const createCard = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.data.actions;
+    let actions = result.data.actions;
     if (req.query.start && req.query.end) {
-        let response = calculateBetweenTime("createCard", actioins, req.query.start, req.query.end);
+        let response = calculateBetweenTime("createCard", actions, req.query.start, req.query.end);
 
         res.json({ statusCode: result.statusCode, data: response });
     } else {
-        let response = calculation("createCard", actioins);
+        let response = calculation("createCard", actions);
 
         res.json({ statusCode: result.statusCode, data: response });
     }
@@ -41,41 +41,41 @@ const createCard = async function (req, res, next) {
 
 const updateCard = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.data.actions;
-    // let count = caculation("updateCard", actioins);
-    let response = calculationById("updateCard", actioins, req.params.id);
+    let actions = result.data.actions;
+    // let count = caculation("updateCard", actions);
+    let response = calculationById("updateCard", actions, req.params.id);
 
     res.json({ statusCode: result.statusCode, data: response });
 };
 const updateCardAll = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.data.actions;
+    let actions = result.data.actions;
     if (req.query.start && req.query.end) {
-        let response = calculateBetweenTime("updateCard", actioins, req.query.start, req.query.end);
+        let response = calculateBetweenTime("updateCard", actions, req.query.start, req.query.end);
 
         res.json({ statusCode: result.statusCode, data: response });
     } else {
-        let response = calculation("updateCard", actioins);
+        let response = calculation("updateCard", actions);
 
         res.json({ statusCode: result.statusCode, data: response });
     }
 };
 const deleteCard = async function (req, res, next) {
     let result = await axios();
-    let actioins = result.data.actions;
-    let response = calculation("deleteCard", actioins);
+    let actions = result.data.actions;
+    let response = calculation("deleteCard", actions);
     res.json({ statusCode: result.statusCode, data: response });
 };
 
 const date = async function (req, res, next) {
-    let actioin = req.params.action;
+    let action = req.params.action;
     let result = await axios();
-    let actioins = result.data.actions;
+    let actions = result.data.actions;
     let allDate = [];
 
-    for (var i = 0; i < actioins.length; i++) {
-        if (actioins[i].type == actioin) {
-            month = moment(actioins[i].date);
+    for (var i = 0; i < actions.length; i++) {
+        if (actions[i].type == action) {
+            month = moment(actions[i].date);
             allDate.push(month);
         }
     }
@@ -87,10 +87,10 @@ const card = async function (req, res, next) {
     console.log(re + " " + typeof re);
 
     let result = await axios();
-    let actioins = result.data.actions;
+    let actions = result.data.actions;
     let allData = [];
 
-    for (var action of actioins) {
+    for (var action of actions) {
         // if (card.type == "deleteCard") {
         //     allData.push(card);
         //     console.log(card.id + " " + typeof (card.id))
@@ -100,7 +100,7 @@ const card = async function (req, res, next) {
             if (action.data.card.id == re) allData.push(action);
         }
     }
-    // for(index of actioins){
+    // for(index of actions){
     //       Object.keys(index.data.card).forEach(function(key){
     //     console.log(key)
     // })
@@ -108,7 +108,7 @@ const card = async function (req, res, next) {
     res.json(allData);
 };
 
-function calculation(actioin, data) {
+function calculation(action, data) {
     let monthCount = [];
     let count = 0;
     let month, lastMonth;
@@ -119,7 +119,7 @@ function calculation(actioin, data) {
         if (i == 0) {
             lastMonth = month;
         }
-        if (data[i].type == actioin) {
+        if (data[i].type == action) {
             if (month.isSame(lastMonth, "month")) {
                 count++;
                 // console.log(month.format("YYYY-MM") + " " + count)
@@ -140,7 +140,7 @@ function calculation(actioin, data) {
     return monthCount;
 }
 
-function calculationById(actioin, dataArr, id) {
+function calculationById(action, dataArr, id) {
     let monthCount = [];
     let updateType = [];
     let count = 0;
@@ -155,7 +155,7 @@ function calculationById(actioin, dataArr, id) {
 
         if (dataArr[i].data.card) {
             if (dataArr[i].data.card.id == id) {
-                if (dataArr[i].type == actioin) {
+                if (dataArr[i].type == action) {
                     if (month.isSame(lastMonth, "month")) {
                         count++;
                         updateType.push({ type: dataArr[i].data.old });
@@ -183,7 +183,7 @@ function calculationById(actioin, dataArr, id) {
     return monthCount;
 }
 
-function calculateBetweenTime(actioin, data, start, end) {
+function calculateBetweenTime(action, data, start, end) {
     let monthCountHaveCards = [];
     let monthCount = [];
     let startMon = moment(start);
@@ -199,11 +199,11 @@ function calculateBetweenTime(actioin, data, start, end) {
     for (let card of data) {
         if (moment(card.date).isBefore(moment(start), "month")) break;
         // if (moment(card.date).isAfter(moment(end)), "month") {
-        //     console.log("conttinue")
+        //     console.log("continue")
         //     continue;
 
         // }
-        if (card.type == actioin) {
+        if (card.type == action) {
             for (let rc of monthCountHaveCards) {
                 if (rc.YYMM == moment(card.date).format("YYYY-MM")) {
                     rc.cards.push(card);

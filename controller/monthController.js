@@ -184,8 +184,8 @@ function calculationById(action, dataArr, id) {
 }
 
 function calculateBetweenTime(action, data, start, end) {
-    let monthCountHaveCards = [];
-    let monthCount = [];
+    let monthCountHaveCards = []; //包含每張card的資料
+    let monthCount = []; //只有相對應數量
     let startMon = moment(start);
     let interval = moment(end).diff(moment(start), "month");
 
@@ -211,13 +211,10 @@ function calculateBetweenTime(action, data, start, end) {
             }
         }
     }
-    for (let rc of monthCountHaveCards) {
-        rc.count = rc.cards.length;
-    }
-    for (i = 0; i < monthCountHaveCards.length; i++) {
-        monthCountHaveCards[i].count = monthCountHaveCards[i].cards.length;
-        monthCount[i].count = monthCountHaveCards[i].count;
-    }
+    monthCountHaveCards.forEach(function (ele, index) {
+        ele.count = ele.cards.length;
+        monthCount[index].count = ele.count;
+    });
 
     return monthCount;
 }

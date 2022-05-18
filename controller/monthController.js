@@ -4,7 +4,7 @@ const { calendarFormat } = require("moment");
 const { type } = require("express/lib/response");
 
 /**
- * 
+ *
  * @param {
  * updateCard,
  * createCard,
@@ -20,13 +20,10 @@ const { type } = require("express/lib/response");
  * updateCustomFieldItem,
  * unconfirmedBoardInvitation,
  * removeMemberFromCard,
- * deleteCard} req 
- * @param {*} res 
- * @param {*} next 
+ * deleteCard} req
+ * @param {*} res
+ * @param {*} next
  */
-
-
-
 
 const createCard = async function (req, res, next) {
     let result = await axios();
@@ -40,18 +37,16 @@ const createCard = async function (req, res, next) {
 
         res.json({ statusCode: result.statusCode, data: response });
     }
-
-}
+};
 
 const updateCard = async function (req, res, next) {
     let result = await axios();
     let actioins = result.data.actions;
     // let count = caculation("updateCard", actioins);
-    let response = calculationById("updateCard", actioins, req.params.id)
+    let response = calculationById("updateCard", actioins, req.params.id);
 
     res.json({ statusCode: result.statusCode, data: response });
-
-}
+};
 const updateCardAll = async function (req, res, next) {
     let result = await axios();
     let actioins = result.data.actions;
@@ -64,14 +59,13 @@ const updateCardAll = async function (req, res, next) {
 
         res.json({ statusCode: result.statusCode, data: response });
     }
-}
+};
 const deleteCard = async function (req, res, next) {
     let result = await axios();
     let actioins = result.data.actions;
     let response = calculation("deleteCard", actioins);
     res.json({ statusCode: result.statusCode, data: response });
-
-}
+};
 
 const date = async function (req, res, next) {
     let actioin = req.params.action;
@@ -84,15 +78,13 @@ const date = async function (req, res, next) {
             month = moment(actioins[i].date);
             allDate.push(month);
         }
-
     }
     res.json(allDate);
-
-}
+};
 
 const card = async function (req, res, next) {
     let re = req.params.id;
-    console.log(re + " " + typeof (re))
+    console.log(re + " " + typeof re);
 
     let result = await axios();
     let actioins = result.data.actions;
@@ -114,8 +106,7 @@ const card = async function (req, res, next) {
     // })
 
     res.json(allData);
-
-}
+};
 
 function calculation(actioin, data) {
     let monthCount = [];
@@ -132,7 +123,6 @@ function calculation(actioin, data) {
             if (month.isSame(lastMonth, "month")) {
                 count++;
                 // console.log(month.format("YYYY-MM") + " " + count)
-
             } else {
                 key = lastMonth.format("YYYY-MM");
                 // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
@@ -147,7 +137,7 @@ function calculation(actioin, data) {
             monthCount.push({ YYMM: key, count });
         }
     }
-    return monthCount
+    return monthCount;
 }
 
 function calculationById(actioin, dataArr, id) {
@@ -171,7 +161,6 @@ function calculationById(actioin, dataArr, id) {
                         updateType.push({ type: dataArr[i].data.old });
                         // console.log(month.format("YYYY-MM") + " " + count)
                         // console.log(dataArr[i].data.old)
-
                     } else {
                         key = lastMonth.format("YYYY-MM");
                         // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
@@ -189,10 +178,9 @@ function calculationById(actioin, dataArr, id) {
             key = lastMonth.format("YYYY-MM");
             // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
             monthCount.push({ YYMM: key, count, old: updateType });
-
         }
     }
-    return monthCount
+    return monthCount;
 }
 
 function calculateBetweenTime(actioin, data, start, end) {
@@ -221,9 +209,7 @@ function calculateBetweenTime(actioin, data, start, end) {
                     rc.cards.push(card);
                 }
             }
-
         }
-
     }
     for (let rc of monthCountHaveCards) {
         rc.count = rc.cards.length;
@@ -234,7 +220,6 @@ function calculateBetweenTime(actioin, data, start, end) {
     }
 
     return monthCount;
-
 }
 
 module.exports = {
@@ -244,4 +229,4 @@ module.exports = {
     updateCardAll,
     card,
     date
-}
+};

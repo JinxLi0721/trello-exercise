@@ -24,43 +24,33 @@ const moment = require("moment");
  */
 
 const status = async function (req, res, next) {
-    let result = await axios();
-    let cards = result.cards;
-    let actions = result.actions;
+    let data = await axios();
+    let cards = data.cards;
+    let cardsId = [];
+    cards.forEach(card => {
+        cardsId.push(card.id);
+    });
+    let newCards = cards.map(value => ({ ...value, createdDate: getCardsDateById(value.id, data) }));
 
-    res.json(actions[0]);
+    res.json(newCards);
 };
 
-function caculation(actioin, data) {
-    let monthCount = [];
-    let count = 0;
-    let month, lastMonth;
-    let key;
-
-    for (var i = 0; i < data.length; i++) {
-        month = moment(data[i].date);
-        if (i == 0) {
-            lastMonth = month;
-        }
-        if (data[i].type == actioin) {
-            if (month.isSame(lastMonth, "month")) {
-                count++;
-                // console.log(month.format("YYYY-MM") + " " + count)
-            } else {
-                key = lastMonth.format("YYYY-MM");
-                // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
-                monthCount.push({ YYMM: key, count });
-                count = 1;
-                lastMonth = month;
+function getCardsDateById(cardId, data) {
+    let actions = data.actions;
+    let res = "";
+    actions.forEach(ele => {
+        if (ele.type == "createCard") {
+            if (ele.data.card.id == cardId) {
+                res = ele.date;
             }
         }
-        if (i == data.length - 1) {
-            key = lastMonth.format("YYYY-MM");
-            // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
-            monthCount.push({ YYMM: key, count });
+        if (ele.type == "copyCard") {
+            if (ele.data.card.id == cardId) {
+                res = ele.date;
+            }
         }
-    }
-    return monthCount;
+    });
+    return res;
 }
 
 module.exports = {

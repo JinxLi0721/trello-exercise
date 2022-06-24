@@ -2,7 +2,7 @@ const axios = require("../config/axios");
 const moment = require("moment");
 
 /**
- * 
+ *
  * @param {
  * updateCard,
  * createCard,
@@ -18,11 +18,10 @@ const moment = require("moment");
  * updateCustomFieldItem,
  * unconfirmedBoardInvitation,
  * removeMemberFromCard,
- * deleteCard} req 
- * @param {*} res 
- * @param {*} next 
+ * deleteCard} req
+ * @param {*} res
+ * @param {*} next
  */
-
 
 const status = async function (req, res, next) {
     let result = await axios();
@@ -30,9 +29,7 @@ const status = async function (req, res, next) {
     let actions = result.actions;
 
     res.json(actions[0]);
-
-}
-
+};
 
 function caculation(actioin, data) {
     let monthCount = [];
@@ -49,7 +46,6 @@ function caculation(actioin, data) {
             if (month.isSame(lastMonth, "month")) {
                 count++;
                 // console.log(month.format("YYYY-MM") + " " + count)
-
             } else {
                 key = lastMonth.format("YYYY-MM");
                 // console.log(lastMonth.format("YYYY-MM") + " con:" + count)
@@ -64,10 +60,9 @@ function caculation(actioin, data) {
             monthCount.push({ YYMM: key, count });
         }
     }
-    return monthCount
+    return monthCount;
 }
-
 
 module.exports = {
-   status
-}
+    status
+};

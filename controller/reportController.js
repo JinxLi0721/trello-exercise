@@ -1,28 +1,6 @@
 const axios = require("../config/axios");
 const moment = require("moment");
 
-/**
- *
- * @param {
- * updateCard,
- * createCard,
- * createCustomField,
- * createList,
- * createBoard,
- * commentCard,
- * addMemberToCard,
- * addMemberToBoard,
- * addAttachmentToCard,
- * addChecklistToCard,
- * updateCheckItemStateOnCard,
- * updateCustomFieldItem,
- * unconfirmedBoardInvitation,
- * removeMemberFromCard,
- * deleteCard} req
- * @param {*} res
- * @param {*} next
- */
-
 const status = async function (req, res, next) {
     let data = await axios();
     let cards = data.cards;
@@ -85,12 +63,10 @@ function mapListsType(data, newCards) {
             if (card.idList == newLists[i].id) {
                 card.listType = newLists[i].type;
                 card.listName = newLists[i].name;
-                console.log(" card.listType:" + card.listType);
                 break;
             }
         }
     });
-    console.log("mapListsType");
     return newCards;
 }
 

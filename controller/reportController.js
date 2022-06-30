@@ -30,9 +30,10 @@ const status = async function (req, res, next) {
     cards.forEach(card => {
         cardsId.push(card.id);
     });
-    let newCards = cards.map(value => ({ ...value, createdDate: getCardsDateById(value.id, data) }));
+    let newCards = await cards.map(value => ({ ...value, createdDate: getCardsDateById(value.id, data) }));
+    let newCardsMapList = await mapListsType(data, newCards);
 
-    res.json(newCards);
+    res.json(newCardsMapList);
 };
 
 function getCardsDateById(cardId, data) {
@@ -51,6 +52,46 @@ function getCardsDateById(cardId, data) {
         }
     });
     return res;
+}
+
+function mapListsType(data, newCards) {
+    let allListsName = ["Todo", "In Progress", "Reviewing", "Done", "Classes", "Closed", "General Info", "Templates"];
+    let type = ["Info", "Todo", "In_progress", "Done"];
+    let listsCategorize = {
+        Info: ["General Info", "Templates"],
+        Todo: ["Todo"],
+        In_progress: ["In Progress", "Reviewing"],
+        Done: ["Classes", "Done"]
+    };
+    let lists = data.lists;
+    let newLists = lists.map(function (ele) {
+        let category;
+        for (listType in listsCategorize) {
+            for (i = 0; i < listsCategorize[listType].length; i++) {
+                if (ele.name == listsCategorize[listType][i]) {
+                    category = listType;
+                    break;
+                }
+            }
+        }
+        return {
+            ...ele,
+            type: category
+        };
+    });
+
+    newCards.forEach(card => {
+        for (i = 0; i < newLists.length; i++) {
+            if (card.idList == newLists[i].id) {
+                card.listType = newLists[i].type;
+                card.listName = newLists[i].name;
+                console.log(" card.listType:" + card.listType);
+                break;
+            }
+        }
+    });
+    console.log("mapListsType");
+    return newCards;
 }
 
 module.exports = {

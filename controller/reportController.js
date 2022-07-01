@@ -9,7 +9,7 @@ const status = async function (req, res, next) {
         cardsId.push(card.id);
     });
     let newCards = await cards.map(value => ({ ...value, createdDate: getCardsDateById(value.id, data) }));
-    let newCardsMapList = await mapListsType(data, newCards);
+    let newCardsMapList = await mapListsStatus(data, newCards);
 
     res.json(newCardsMapList);
 };
@@ -32,9 +32,9 @@ function getCardsDateById(cardId, data) {
     return res;
 }
 
-function mapListsType(data, newCards) {
+function mapListsStatus(data, newCards) {
     let allListsName = ["Todo", "In Progress", "Reviewing", "Done", "Classes", "Closed", "General Info", "Templates"];
-    let type = ["Info", "Todo", "In_progress", "Done"];
+    let status = ["Info", "Todo", "In_progress", "Done"];
     let listsCategorize = {
         Info: ["General Info", "Templates"],
         Todo: ["Todo"],
@@ -44,24 +44,24 @@ function mapListsType(data, newCards) {
     let lists = data.lists;
     let newLists = lists.map(function (ele) {
         let category;
-        for (listType in listsCategorize) {
-            for (i = 0; i < listsCategorize[listType].length; i++) {
-                if (ele.name == listsCategorize[listType][i]) {
-                    category = listType;
+        for (listStatus in listsCategorize) {
+            for (i = 0; i < listsCategorize[listStatus].length; i++) {
+                if (ele.name == listsCategorize[listStatus][i]) {
+                    category = listStatus;
                     break;
                 }
             }
         }
         return {
             ...ele,
-            type: category
+            status: category
         };
     });
 
     newCards.forEach(card => {
         for (i = 0; i < newLists.length; i++) {
             if (card.idList == newLists[i].id) {
-                card.listType = newLists[i].type;
+                card.listStatus = newLists[i].status;
                 card.listName = newLists[i].name;
                 break;
             }

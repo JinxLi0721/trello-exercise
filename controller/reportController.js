@@ -22,7 +22,7 @@ const status = async function (req, res, next) {
 
     // for categorize list status, add listType and listName in cardsList
     let newCardsMapList = await mapListsStatus(data, newCards);
-    res.json(filter(newCardsMapList, req.query.labelID, req.query.from, req.query.to)); // filter by label and date, return cardsList
+    res.json(filter(newCardsMapList, req.query.labelID, req.query.from, req.query.to)); // filter by label and date, return count of cards in every list status
 };
 
 function getCardsDateById(cardId, data) {
@@ -84,8 +84,9 @@ function mapListsStatus(data, newCards) {
 function filter(cardsList, labelID, sDate, eDate) {
     let filterByLabel = filterCardsByLabel(cardsList, labelID);
     let filterByDate = filterCardsByDate(filterByLabel, sDate, eDate);
+    let cardsCount = calculateCardsNumber(filterByDate);
 
-    return filterByDate;
+    return cardsCount;
 }
 
 function filterCardsByLabel(cardsList, labelID) {
@@ -118,6 +119,16 @@ function filterCardsByDate(cardsList, sDate, eDate) {
         return moment(card.createdDate).isBetween(start, end);
     });
     return cardsFilterByDate;
+}
+
+function calculateCardsNumber(cardsList) {
+    let groupObj = _.groupBy(cardsList, "listStatus");
+    let countObj = {};
+    for (key in groupObj) {
+        countObj[key] = groupObj[key].length;
+    }
+
+    return countObj;
 }
 
 module.exports = {

@@ -17,7 +17,7 @@ const status = async function (req, res, next) {
     //for filter by date, add cards created date in cardsList
     let newCards = await cards.map(card => ({
         ...card,
-        createdDate: getCardsDateById(card.id, board),
+        createdDate: getCardCreatedDate(card.id, board.actions),
     }));
 
     // for categorize list status, add listType and listName in cardsList
@@ -32,22 +32,13 @@ const status = async function (req, res, next) {
     res.json(statusReport); // filter by label and date, return count of cards in every list status
 };
 
-function getCardsDateById(cardId, board) {
-    let actions = board.actions;
-    let res = "";
-    actions.forEach(action => {
-        if (action.type == "createCard") {
-            if (action.data.card.id == cardId) {
-                res = action.date;
-            }
-        }
-        if (action.type == "copyCard") {
-            if (action.data.card.id == cardId) {
-                res = action.date;
-            }
-        }
-    });
-    return res;
+function getCardCreatedDate(cardId, actions) {
+    const card = actions.find(action =>
+      (action.type == "createCard" || action.type == "copyCard") &&
+      action.data.card.id == cardId
+    );
+
+    return card.date;
 }
 
 function mapListsStatus(board, newCards) {

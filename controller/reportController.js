@@ -15,7 +15,10 @@ const status = async function (req, res, next) {
     let cards = data.cards;
 
     //for filter by date, add cards created date in cardsList
-    let newCards = await cards.map(value => ({ ...value, createdDate: getCardsDateById(value.id, data) }));
+    let newCards = await cards.map(card => ({
+        ...card,
+        createdDate: getCardsDateById(card.id, data),
+    }));
 
     // for categorize list status, add listType and listName in cardsList
     let newCardsMapList = await mapListsStatus(data, newCards);

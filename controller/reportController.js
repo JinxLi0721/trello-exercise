@@ -11,17 +11,17 @@ require("lodash-unwind")({ injected: true });
  * to:"20220526"} req
  */
 const status = async function (req, res, next) {
-    let data = await trelloAdapter.getBoard();
-    let cards = data.cards;
+    let board = await trelloAdapter.getBoard();
+    let cards = board.cards;
 
     //for filter by date, add cards created date in cardsList
     let newCards = await cards.map(card => ({
         ...card,
-        createdDate: getCardsDateById(card.id, data),
+        createdDate: getCardsDateById(card.id, board),
     }));
 
     // for categorize list status, add listType and listName in cardsList
-    let newCardsMapList = await mapListsStatus(data, newCards);
+    let newCardsMapList = await mapListsStatus(board, newCards);
     const statusReport = filter(
         newCardsMapList,
         req.query.labelID,
@@ -32,25 +32,25 @@ const status = async function (req, res, next) {
     res.json(statusReport); // filter by label and date, return count of cards in every list status
 };
 
-function getCardsDateById(cardId, data) {
-    let actions = data.actions;
+function getCardsDateById(cardId, board) {
+    let actions = board.actions;
     let res = "";
-    actions.forEach(ele => {
-        if (ele.type == "createCard") {
-            if (ele.data.card.id == cardId) {
-                res = ele.date;
+    actions.forEach(action => {
+        if (action.type == "createCard") {
+            if (action.data.card.id == cardId) {
+                res = action.date;
             }
         }
-        if (ele.type == "copyCard") {
-            if (ele.data.card.id == cardId) {
-                res = ele.date;
+        if (action.type == "copyCard") {
+            if (action.data.card.id == cardId) {
+                res = action.date;
             }
         }
     });
     return res;
 }
 
-function mapListsStatus(data, newCards) {
+function mapListsStatus(board, newCards) {
     let allListsName = ["Todo", "In Progress", "Reviewing", "Done", "Classes", "Closed", "General Info", "Templates"];
     let status = ["Info", "Todo", "In_progress", "Done"];
     let listsCategorize = {
@@ -59,19 +59,19 @@ function mapListsStatus(data, newCards) {
         In_progress: ["In Progress", "Reviewing"],
         Done: ["Classes", "Done"]
     };
-    let lists = data.lists;
-    let newLists = lists.map(function (ele) {
+    let lists = board.lists;
+    let newLists = lists.map(function (list) {
         let category;
         for (listStatus in listsCategorize) {
             for (i = 0; i < listsCategorize[listStatus].length; i++) {
-                if (ele.name == listsCategorize[listStatus][i]) {
+                if (list.name == listsCategorize[listStatus][i]) {
                     category = listStatus;
                     break;
                 }
             }
         }
         return {
-            ...ele,
+            ...list,
             status: category
         };
     });

@@ -13,10 +13,7 @@ require("lodash-unwind")({ injected: true });
 const status = async function (req, res, next) {
     let data = await axios();
     let cards = data.cards;
-    let cardsId = [];
-    cards.forEach(card => {
-        cardsId.push(card.id);
-    });
+
     //for filter by date, add cards created date in cardsList
     let newCards = await cards.map(value => ({ ...value, createdDate: getCardsDateById(value.id, data) }));
 

@@ -22,7 +22,14 @@ const status = async function (req, res, next) {
 
     // for categorize list status, add listType and listName in cardsList
     let newCardsMapList = await mapListsStatus(data, newCards);
-    res.json(filter(newCardsMapList, req.query.labelID, req.query.from, req.query.to)); // filter by label and date, return count of cards in every list status
+    const statusReport = filter(
+        newCardsMapList,
+        req.query.labelID,
+        req.query.from,
+        req.query.to
+    );
+
+    res.json(statusReport); // filter by label and date, return count of cards in every list status
 };
 
 function getCardsDateById(cardId, data) {

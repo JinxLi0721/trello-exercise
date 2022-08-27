@@ -1,6 +1,7 @@
 const moment = require("moment");
 const _ = require("lodash");
 const { trelloAdapter } = require('../adapters/trelloAdapter');
+const trelloConfig = require('../config/trello');
 require("lodash-unwind")({ injected: true });
 
 /**
@@ -21,7 +22,7 @@ const status = async function (req, res, next) {
     }));
 
     // for categorize list status, add listType and listName in cardsList
-    let newCardsMapList = await mapListsStatus(board, newCards);
+    let newCardsMapList = await mapListsStatus(board.lists, newCards);
     const statusReport = filter(
         newCardsMapList,
         req.query.labelID,
@@ -41,42 +42,41 @@ function getCardCreatedDate(cardId, actions) {
     return card.date;
 }
 
-function mapListsStatus(board, newCards) {
-    let allListsName = ["Todo", "In Progress", "Reviewing", "Done", "Classes", "Closed", "General Info", "Templates"];
-    let status = ["Info", "Todo", "In_progress", "Done"];
-    let listsCategorize = {
-        Info: ["General Info", "Templates"],
-        Todo: ["Todo"],
-        In_progress: ["In Progress", "Reviewing"],
-        Done: ["Classes", "Done"]
-    };
-    let lists = board.lists;
-    let newLists = lists.map(function (list) {
-        let category;
-        for (listStatus in listsCategorize) {
-            for (i = 0; i < listsCategorize[listStatus].length; i++) {
-                if (list.name == listsCategorize[listStatus][i]) {
-                    category = listStatus;
-                    break;
-                }
-            }
-        }
-        return {
-            ...list,
-            status: category
-        };
-    });
+function mapListsStatus(lists, newCards) {
+    // reverse mapping
+    // e.x
+    /**
+     * {
+        "General Info": "Info",
+        "Template": "Info",
+        "Todo": "Todo",
+        "In Progress": "In Progress",
+        "Reviewing": "In Progress",
+        "Done": "Done"
+      }
+     */
+    const listStageMapping = {};
 
-    newCards.forEach(card => {
-        for (i = 0; i < newLists.length; i++) {
-            if (card.idList == newLists[i].id) {
-                card.listStatus = newLists[i].status;
-                card.listName = newLists[i].name;
-                break;
-            }
+    for (let stage of Object.values(trelloConfig.stages)) {
+        stage.listNames.forEach(listName => {
+            listStageMapping[listName] = stage.label;
+        })
+    }
+
+    const newLists = lists.map(list => ({
+      ...list,
+      status: listStageMapping[list.name] || 'Others',
+    }));
+
+    return newCards.map(card => {
+        const list = newLists.find(list => list.id === card.idList);
+
+        return {
+          ...card,
+          listStatus: list.status,
+          listName: list.name,
         }
     });
-    return newCards;
 }
 
 function filter(cardsList, labelID, sDate, eDate) {

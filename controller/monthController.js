@@ -1,10 +1,10 @@
-const axios = require("../config/axios");
+const { trelloAdapter } = require('../adapters/trelloAdapter');
 const moment = require("moment");
 const { calendarFormat } = require("moment");
 const { type } = require("express/lib/response");
 
 /**
- * 
+ *
  * @param {
  * updateCard,
  * createCard,
@@ -20,16 +20,16 @@ const { type } = require("express/lib/response");
  * updateCustomFieldItem,
  * unconfirmedBoardInvitation,
  * removeMemberFromCard,
- * deleteCard} req 
- * @param {*} res 
- * @param {*} next 
+ * deleteCard} req
+ * @param {*} res
+ * @param {*} next
  */
 
 
 
 
 const createCard = async function (req, res, next) {
-    let result = await axios();
+    let result = await trelloAdapter.getBoard();
     let actioins = result.actions;
 
     res.json(caculation("createCard", actioins));
@@ -37,7 +37,7 @@ const createCard = async function (req, res, next) {
 }
 
 const updateCard = async function (req, res, next) {
-    let result = await axios();
+    let result = await trelloAdapter.getBoard();
     let actioins = result.actions;
     // let count = caculation("updateCard", actioins);
 
@@ -45,7 +45,7 @@ const updateCard = async function (req, res, next) {
 
 }
 const updateCardAll = async function (req, res, next) {
-    let result = await axios();
+    let result = await trelloAdapter.getBoard();
     let actioins = result.actions;
     // let count = caculation("updateCard", actioins);
 
@@ -53,7 +53,7 @@ const updateCardAll = async function (req, res, next) {
 
 }
 const deleteCard = async function (req, res, next) {
-    let result = await axios();
+    let result = await trelloAdapter.getBoard();
     let actioins = result.actions;
 
     res.json(caculation("deleteCard", actioins));
@@ -62,7 +62,7 @@ const deleteCard = async function (req, res, next) {
 
 const date = async function (req, res, next) {
     let actioin = req.params.action;
-    let result = await axios();
+    let result = await trelloAdapter.getBoard();
     let actioins = result.actions;
     let allDate = [];
 
@@ -81,7 +81,7 @@ const card = async function (req, res, next) {
     let re = req.params.id;
     console.log(re + " " + typeof (re))
 
-    let result = await axios();
+    let result = await trelloAdapter.getBoard();
     let actioins = result.actions;
     let allData = [];
 

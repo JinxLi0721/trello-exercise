@@ -1,6 +1,6 @@
-const axios = require("../config/axios");
 const moment = require("moment");
 const _ = require("lodash");
+const { trelloAdapter } = require('../adapters/trelloAdapter');
 require("lodash-unwind")({ injected: true });
 
 /**
@@ -11,7 +11,7 @@ require("lodash-unwind")({ injected: true });
  * to:"20220526"} req
  */
 const status = async function (req, res, next) {
-    let data = await axios();
+    let data = await trelloAdapter.getBoard();
     let cards = data.cards;
 
     //for filter by date, add cards created date in cardsList
